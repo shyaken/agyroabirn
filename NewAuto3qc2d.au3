@@ -75,6 +75,7 @@ Func quit()
 	_AssocArrayDestroy($memoryAddrArray)
 	$lparam2 = (300 * 65536) + (526)
 	_WinAPI_PostMessage(WinGetHandle($windowTitle), 514, 0, $lparam2)
+	FileWrite($logsfolder & "auto_history_" & @YEAR & @MON & @MDAY & ".log", GUICtrlRead($log))
 	MsgBox(0, "Tạm Biệt", "Hẹn Gặp Lại")
 EndFunc   ;==>quit
 
@@ -99,7 +100,7 @@ Func docnhanvat()
 EndFunc   ;==>docnhanvat
 
 Func loadUserConfig()
-	$filename = GUICtrlRead($combo) & ".conf"
+	$filename = $configfolder & GUICtrlRead($combo) & ".conf"
 	$file = FileOpen($filename)
 	If $file = -1 Then
 		GUICtrlSetData($log, "No config file found" & @CRLF & GUICtrlRead($log))
@@ -125,13 +126,13 @@ Func loadUserConfig()
 EndFunc   ;==>loadUserConfig
 
 Func saveUserConfig()
-	$filename = GUICtrlRead($combo) & ".conf"
+	$filename = $configfolder & $windowTitle & ".conf"
 	$line = ""
 	For $i = 1 To 18
 		$line = $line & $i & "=" & GUICtrlRead($controlsId[$i]) & @CRLF
 	Next
 	FileDelete($filename)
-	$filehandle = FileCopy("unicodefile.conf", $filename, 1)
+	$filehandle = FileCopy($configfolder & "unicodefile.conf", $filename, 1)
 	If $filehandle = 0 Then
 		GUICtrlSetData($log, "open file : " & $filename & " " & $filehandle & @CRLF & GUICtrlRead($log))
 	EndIf
@@ -291,9 +292,9 @@ Func checkStuck($varx, $vary)
 	$addnamemap = readMemoryNoType($mapnamekey, $handle)
 	If ($currentTime - $lastSaveTime > 2 * 60) Or ($currentTime - $lastSaveTime < 0) Then
 		$logTime = "[" & @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & "]   "
-		FileWriteLine("log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "New save time at : " & $currentTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
+		FileWriteLine($logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "New save time at : " & $currentTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
 		If (Abs($lastSaveX - $varx) < 3) And ($currentTime > $lastSaveTime) And (GUICtrlRead($ckStuck) = 1) Then
-			FileWriteLine("log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "**** Stuck at [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] map : " & $addnamemap & "(" & $varx & "," & $vary & ")" & " teleporting ******")
+			FileWriteLine($logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "**** Stuck at [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] map : " & $addnamemap & "(" & $varx & "," & $vary & ")" & " teleporting ******")
 			GUICtrlSetData($log, $logTime & "**** Stuck at [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")" & " teleporting ******" & @CRLF & GUICtrlRead($log))
 			_WinAPI_PostMessage(WinGetHandle($windowTitle), 256, $teleportkey, 1)
 			Sleep(1000)
@@ -425,7 +426,7 @@ Func chayx($handle, $varx)
 					$varx = getX()
 					$varx2 = $varx
 					While Abs($varx2 - $varx) < 100
-						flash($windowTitle, 1000, $lparamx)
+						flash($windowTitle, $lparamx, 1000)
 						$varx2 = getX()
 					WEnd
 				EndIf
@@ -478,7 +479,7 @@ Func chayx($handle, $varx)
 EndFunc   ;==>chayx
 
 Func tankboss($numberboss, $handle, $tgcho, $lparamx)
-	flash($windowTitle, 1000, $lparamx)
+	flash($windowTitle, $lparamx, 1000)
 	$soboss = "0x005f5ce4"
 	$boss = _memoryread($soboss, $handle)
 	$attack = "0x005f5e99"
@@ -521,7 +522,7 @@ Func tankboss($numberboss, $handle, $tgcho, $lparamx)
 			$varx = getX()
 			$varx2 = $varx
 			While Abs($varx2 - $varx) < 100
-				flash($windowTitle, 1000, $lparamx)
+				flash($windowTitle, $lparamx, 1000)
 				$varx2 = getX()
 			WEnd
 		EndIf
@@ -548,15 +549,11 @@ Func tankboss($numberboss, $handle, $tgcho, $lparamx)
 			EndIf
 		Next
 		If $ktboss = True Then
-			$addtoadox = "0x005f5c88"
-			$addtoadox = _memoryread($addtoadox, $handle)
-			$varx = Floor($addtoadox / 64)
-			$varx2 = Floor($addtoadox / 64)
+			$varx = getX()
+			$varx2 = $varx
 			While Abs($varx2 - $varx) < 100
-				flash($windowTitle, 1000, $lparamx)
-				$addtoadox = "0x005f5c88"
-				$addtoadox = _memoryread($addtoadox, $handle)
-				$varx2 = Floor($addtoadox / 64)
+				flash($windowTitle, $lparamx, 1000)
+				$varx2 = getX()
 			WEnd
 		EndIf
 		If $tank = True Then
@@ -619,7 +616,7 @@ Func tankboss($numberboss, $handle, $tgcho, $lparamx)
 		GUICtrlSetData($log, GUICtrlRead($lbsobossha) & " - " & docunicode($tenboss) & " [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] - " & $map[$addnamemap] & @CRLF & GUICtrlRead($log))
 		$lastSaveTime = @HOUR * 3600 + @MIN * 60 + @SEC
 		$logTime = "[" & @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & "]   "
-		FileWriteLine("log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "Killed " & docunicode($tenboss) & " New save time at : " & $lastSaveTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
+		FileWriteLine($logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "Killed " & docunicode($tenboss) & " New save time at : " & $lastSaveTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
 		$lastSaveX = $varx
 		$lastSaveY = $vary
 		$killedBoss = False

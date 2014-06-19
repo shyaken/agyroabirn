@@ -24,6 +24,8 @@ $bossne = ""
 $charType23 = "char[23]"
 $dead = false
 $killedBoss = False
+$logsfolder = "logs/"
+$configfolder = "conf/"
 
 $hpSetting = 0
 $teleSetting = 0
