@@ -1,0 +1,36 @@
+﻿$str = "Bắt Đầu"
+$xpet1 = 100
+$lastSaveTime = 0
+$lastSaveX = 0
+$lastSaveY = 0
+$xpet2 = 900
+$ypet = 29
+$timebatdau = ""
+$skillkey = ""
+$powerupkey = ""
+$firsthpbuff = ""
+$secondhpbuff = ""
+$teleportkey = ""
+$flashkey = ""
+$timer1 = 400
+$timer2 = 400
+$conect = 0
+$listmap = ""
+$mapdau = ""
+$mapcuoi = ""
+$killedBoss = False
+$logTime = ""
+$bossne = ""
+$charType23 = "char[23]"
+$dead = false
+$killedBoss = False
+
+$hpSetting = 0
+$teleSetting = 0
+$stuckSetting = 0
+$delItemSetting = 0
+$furySetting = 0
+$ignoreSetting = 0
+$windowTitle = ""
+
+Global $handle = 0
