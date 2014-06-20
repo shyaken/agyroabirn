@@ -61,7 +61,6 @@ Func loadSetting()
 				EndIf
 			Next
 		Next
-		GUICtrlSetData($debug2, StringLower($map[294]) & " " & StringLower($maplist[1]))
 		$maplist = StringSplit($listmap, "-")
 		$mapdau = $maplist[1]
 		$mapcuoi = $maplist[$maplist[0] - 1]
@@ -75,6 +74,7 @@ Func quit()
 	_AssocArrayDestroy($memoryAddrArray)
 	$lparam2 = (300 * 65536) + (526)
 	_WinAPI_PostMessage(WinGetHandle($windowTitle), 514, 0, $lparam2)
+	stopMoving($windowTitle, 100)
 	FileWrite($logsfolder & "auto_history_" & @YEAR & @MON & @MDAY & ".log", GUICtrlRead($log))
 	MsgBox(0, "Tạm Biệt", "Hẹn Gặp Lại")
 EndFunc   ;==>quit
@@ -246,7 +246,6 @@ Func chayy($handle, $vary)
 			GUICtrlSetData($log, "**** Mất kết nối lúc [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] ******" & @CRLF & GUICtrlRead($log))
 			stop()
 		EndIf
-		checkStuck($varx, $vary)
 		$msg = GUIGetMsg()
 		If $msg = $okbutton Then
 			If $str = "Dừng" Then
@@ -293,13 +292,16 @@ Func checkStuck($varx, $vary)
 	If ($currentTime - $lastSaveTime > 2 * 60) Or ($currentTime - $lastSaveTime < 0) Then
 		$logTime = "[" & @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & "]   "
 		FileWriteLine($logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "New save time at : " & $currentTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
-		If (Abs($lastSaveX - $varx) < 3) And ($currentTime > $lastSaveTime) And (GUICtrlRead($ckStuck) = 1) Then
-			FileWriteLine($logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "**** Stuck at [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] map : " & $addnamemap & "(" & $varx & "," & $vary & ")" & " teleporting ******")
+		If (Abs($lastSaveX - $varx) < 3) And ($currentTime - $lastSaveTime > 120) And (GUICtrlRead($ckStuck) = 1) And $lastSaveTime <> -1 Then
+			stopMoving($windowTitle, 100)
+			FileWriteLine($logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "**** Stuck at [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] map : " & $addnamemap & "(" & $varx & "," & $vary & ")" & " teleporting ****** " & $lastSaveTime & " vs " & $currentTime)
 			GUICtrlSetData($log, $logTime & "**** Stuck at [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")" & " teleporting ******" & @CRLF & GUICtrlRead($log))
 			_WinAPI_PostMessage(WinGetHandle($windowTitle), 256, $teleportkey, 1)
+			Sleep(100)
+			_WinAPI_PostMessage(WinGetHandle($windowTitle), 257, $teleportkey, 1)
 			Sleep(1000)
 		EndIf
-		$lastSaveTime = $currentTime
+		$lastSaveTime = @HOUR * 3600 + @MIN * 60 + @SEC
 		$lastSaveX = $varx
 		$lastSaveY = $vary
 	EndIf
@@ -328,7 +330,6 @@ Func chayx($handle, $varx)
 		$hp = getCurrentHp()
 		GUICtrlSetData($lbhp, $hp)
 		$addnamemap = readMemoryNoType($mapnamekey, $handle)
-		GUICtrlSetData($debug, $addnamemap & " " & $mapdau & " " & $mapcuoi)
 		$varx = getX()
 		$vary = getY()
 		checkStuck($varx, $vary)
@@ -375,22 +376,25 @@ Func chayx($handle, $varx)
 				$lparamx = (284 * 65536) + (523)
 			EndIf
 		EndIf
+		GUICtrlSetData($debug2, "-" & $listmap & "-" & " " & "-" & $addnamemap & "-")
 		$numberboss = readMemoryNoType($bosscountkey, $handle)
 		GUICtrlSetData($lbsoboss, $numberboss)
 		If $map[$addnamemap] <> GUICtrlRead($lbmap) Then
 			GUICtrlSetData($lbmap, $map[$addnamemap])
-			If GUICtrlRead($ckmap) == 1 And StringInStr("-" & GUICtrlRead($map2) & "-", "-" & $map[$addnamemap] & "-") = 0 Then
-				Sleep(5000)
+			If GUICtrlRead($ckmap) == 1 And StringInStr("-" & $listmap & "-", "-" & $addnamemap & "-") = 0 Then
+				$lparam2 = (325 * 65536) + (526)
+				_WinAPI_PostMessage(WinGetHandle($windowTitle), 514, 0, $lparam2)
+				Sleep(100)
 				_WinAPI_PostMessage(WinGetHandle($windowTitle), 256, $teleportkey, 1)
 				Sleep(100)
 				_WinAPI_PostMessage(WinGetHandle($windowTitle), 257, $teleportkey, 1)
-				Sleep(2000)
+				Sleep(600)
 				GUICtrlSetData($log, @CRLF & "**** Using teleport at " & $map[$addnamemap] & "[" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] ******" & @CRLF & GUICtrlRead($log))
-				If $varx <= $xpet1 And $addnamemap = $mapdau Then
+				If $varx <= $xpet1 Then
 					$lparamx = (325 * 65536) + (926)
 					$huongchay = "Tien"
 				EndIf
-				If $varx >= $xpet2 And $addnamemap = $mapcuoi Then
+				If $varx >= $xpet2 Then
 					$lparamx = (325 * 65536) + (126)
 					$huongchay = "Lui"
 				EndIf
@@ -441,7 +445,7 @@ Func chayx($handle, $varx)
 				chayy($handle, $vary)
 			EndIf
 		EndIf
-		If $vary > 26 Or $vary < 24 Then
+		If $vary > 35 Or $vary < 15 Then
 			Sleep(500)
 			chayy($handle, $vary)
 		EndIf
@@ -559,38 +563,21 @@ Func tankboss($numberboss, $handle, $tgcho, $lparamx)
 		If $tank = True Then
 			$lparam = (95 * 65536) + (513)
 			If $nokhi > GUICtrlRead($txtno) Then
-				_WinAPI_PostMessage(WinGetHandle($windowTitle), 256, $powerupkey, 1)
-				Sleep(300)
-				_WinAPI_PostMessage(WinGetHandle($windowTitle), 257, $powerupkey, 1)
+				pressButton($windowTitle, $powerupkey, 300)
 				_WinAPI_PostMessage(WinGetHandle($windowTitle), 512, 0, $lparam)
 				_WinAPI_PostMessage(WinGetHandle($windowTitle), 512, 0, $lparam)
-				_WinAPI_PostMessage(WinGetHandle($windowTitle), 256, $skillkey, 1)
-				Sleep(100)
-				_WinAPI_PostMessage(WinGetHandle($windowTitle), 257, $skillkey, 1)
+				pressButton($windowTitle, $skillkey, 300)
 			EndIf
-			_WinAPI_PostMessage(WinGetHandle($windowTitle), 513, 1, $lparam)
-			Sleep(100)
-			_WinAPI_PostMessage(WinGetHandle($windowTitle), 514, 0, $lparam)
+			actionMouseClick($windowTitle, $lparam, 100)
 			Sleep(100)
 			$killedBoss = True
 		EndIf
 		If $hp <= GUICtrlRead($txthp) Then
 			$lparamx = (650 * 65536) + (95)
-			_WinAPI_PostMessage(WinGetHandle($windowTitle), 256, $firsthpbuff, 1)
-			Sleep(100)
-			_WinAPI_PostMessage(WinGetHandle($windowTitle), 257, $firsthpbuff, 1)
-			Sleep(100)
-			_WinAPI_PostMessage(WinGetHandle($windowTitle), 256, $secondhpbuff, 1)
-			Sleep(100)
-			_WinAPI_PostMessage(WinGetHandle($windowTitle), 257, $secondhpbuff, 1)
-			Sleep(100)
-			_WinAPI_PostMessage(WinGetHandle($windowTitle), 513, 1, $lparamx)
-			Sleep(100)
-			_WinAPI_PostMessage(WinGetHandle($windowTitle), 514, 0, $lparamx)
-			Sleep(200)
-			_WinAPI_PostMessage(WinGetHandle($windowTitle), 513, 1, $lparamx)
-			Sleep(100)
-			_WinAPI_PostMessage(WinGetHandle($windowTitle), 514, 0, $lparamx)
+			pressButton($windowTitle, $firsthpbuff, 300)
+			pressButton($windowTitle, $secondhpbuff, 300)
+			actionMouseClick($windowTitle, $lparamx, 100)
+			actionMouseClick($windowTitle, $lparamx, 100)
 			Sleep(100)
 			If $hp == 0 Then
 				hoisinh($handle, $hp, True)

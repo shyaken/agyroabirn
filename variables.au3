@@ -1,6 +1,6 @@
 ﻿$str = "Bắt Đầu"
 $xpet1 = 100
-$lastSaveTime = 0
+$lastSaveTime = -1
 $lastSaveX = 0
 $lastSaveY = 0
 $xpet2 = 900

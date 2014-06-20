@@ -31,5 +31,19 @@ Func flash ($window, $location, $waittime)
 	Sleep($waittime)
 EndFunc
 
+Func pressButton ($window, $buttonkey, $waittime)
+	Sleep(50)
+	_WinAPI_PostMessage(WinGetHandle($window), 256, $buttonkey, 1)
+	Sleep(100)
+	_WinAPI_PostMessage(WinGetHandle($window), 257, $buttonkey, 1)
+	Sleep($waittime)
+EndFunc
+
+Func stopMoving ($window, $waittime)
+	$location = calLParam(526,325)
+	actionMouseClick($window, $location, $waittime)
+	Sleep ($waittime)
+EndFunc
+
 Func relogin ($window, $currentServer)
 EndFunc

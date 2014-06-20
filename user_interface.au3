@@ -60,9 +60,9 @@
 	$txtvatpham = GUICtrlCreateInput("2", 264, 162, 25, 21)
 	$controlsId[5] = $txtvatpham
 	$label11 = GUICtrlCreateLabel("Phút ", 293, 166, 35, 17)
-	$ckvatpham = GUICtrlCreateCheckbox("Tự động đăng nhập khi hết map  ", 350, 130, 175, 17)
+	$ckrelogin = GUICtrlCreateCheckbox("Tự động đăng nhập khi hết map  ", 350, 130, 175, 17)
 	$controlsId[4] = $ckvatpham
-	$ckvatpham = GUICtrlCreateCheckbox("Cho lính tấn công boss trước  ", 350, 150, 175, 17)
+	$ckpettank = GUICtrlCreateCheckbox("Cho lính tấn công boss trước  ", 350, 150, 175, 17)
 	$controlsId[4] = $ckvatpham
 	$ckmap = GUICtrlCreateCheckbox("Map thay đổi sử dụng phím", 16, 300, 145, 17)
 	$controlsId[6] = $ckmap
