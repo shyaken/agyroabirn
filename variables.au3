@@ -26,6 +26,7 @@ $dead = false
 $killedBoss = False
 $logsfolder = "logs/"
 $configfolder = "conf/"
+$currentServer = 0
 
 $hpSetting = 0
 $teleSetting = 0
@@ -34,5 +35,6 @@ $delItemSetting = 0
 $furySetting = 0
 $ignoreSetting = 0
 $windowTitle = ""
+$changeSvSetting
 
 Global $handle = 0
