@@ -20,6 +20,9 @@ $dead = false
 $killedBoss = False
 $currentServer = 0
 $windowTitle = ""
+$finishallmap = false
+$visitedfirstmap = false
+$logfilename = null
 
 ;semi-const variables
 $logsfolder = "logs/"

@@ -1,12 +1,4 @@
-﻿#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
-#AutoIt3Wrapper_Icon=ico.ico
-#AutoIt3Wrapper_Outfile=..\autotqc.exe
-#AutoIt3Wrapper_Outfile_x64=AutoBossThreeKingdomPro64.exe
-#AutoIt3Wrapper_Compile_Both=y
-#AutoIt3Wrapper_UseX64=y
-#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
-
-Func loadSetting()
+﻿Func loadSetting()
 	$windowTitle = GUICtrlRead($combo)
 	$pid = WinGetProcess($windowTitle)
 	$handle = _memoryopen($pid)
@@ -30,6 +22,11 @@ Func loadSetting()
 	$playshortkey = GUICtrlRead($keyplay)
 	$stopshortkey = GUICtrlRead($keystop)
 	$listmap = ""
+	$logfilename = $logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt"
+	$logfilehandle = FileOpen($logfilename, 1 + 8 + 128)
+	FileWriteLine($logfilehandle, "begin editing logfile at " & @YEAR & @MON & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC)
+	FileClose($logfilehandle)
+
 	If UBound($maplist) > 2 Then
 		For $i = 1 To $maplist[0]
 			For $j = 1 To 890
@@ -79,13 +76,13 @@ EndFunc   ;==>readCharacters
 
 Func loadUserConfig()
 	$filename = $configfolder & GUICtrlRead($combo) & ".conf"
-	$file = FileOpen($filename)
-	If $file = -1 Then
+	$configfilehandle = FileOpen($filename, $FO_READ)
+	If $configfilehandle = -1 Then
 		GUICtrlSetData($log, "No config file found" & @CRLF & GUICtrlRead($log))
 	Else
 		$numOfLine = 18
 		For $i = 1 To $numOfLine
-			$line = FileReadLine($filename, $i)
+			$line = FileReadLine($configfilehandle, $i)
 			If ($line = "") Then
 				ContinueLoop
 			EndIf
@@ -100,7 +97,7 @@ Func loadUserConfig()
 			EndIf
 		Next
 	EndIf
-	FileClose($file)
+	FileClose($configfilehandle)
 EndFunc   ;==>loadUserConfig
 
 Func saveUserConfig()
@@ -210,10 +207,10 @@ Func checkStuck($varx, $vary)
 	$addnamemap = readMemoryNoType($mapnamekey, $handle)
 	If ($currentTime - $lastSaveTime > 2 * 60) Or ($currentTime - $lastSaveTime < 0) Then
 		$logTime = "[" & @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & "]   "
-		FileWriteLine($logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "New save time at : " & $currentTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
+		FileWriteLine($logfilename, @CRLF & $logTime & "New save time at : " & $currentTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
 		If (Abs($lastSaveX - $varx) < 3) And ($currentTime - $lastSaveTime > 120) And (GUICtrlRead($ckStuck) = 1) And $lastSaveTime <> -1 Then
 			stopMoving($windowTitle, 100)
-			FileWriteLine($logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "**** Stuck at [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] map : " & $addnamemap & "(" & $varx & "," & $vary & ")" & " teleporting ****** " & $lastSaveTime & " vs " & $currentTime)
+			FileWriteLine($logfilename, @CRLF & $logTime & "**** Stuck at [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] map : " & $addnamemap & "(" & $varx & "," & $vary & ")" & " teleporting ****** " & $lastSaveTime & " vs " & $currentTime)
 			GUICtrlSetData($log, $logTime & "**** Stuck at [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")" & " teleporting ******" & @CRLF & GUICtrlRead($log))
 			_WinAPI_PostMessage(WinGetHandle($windowTitle), 256, $teleportkey, 1)
 			Sleep(100)
@@ -582,7 +579,7 @@ Func tankboss($numberboss, $handle, $tgcho, $lparamx)
 		GUICtrlSetData($log, GUICtrlRead($lbsobossha) & " - " & docunicode($tenboss) & " [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] - " & $map[$addnamemap] & @CRLF & GUICtrlRead($log))
 		$lastSaveTime = @HOUR * 3600 + @MIN * 60 + @SEC
 		$logTime = "[" & @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & "]   "
-		FileWriteLine($logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt", @CRLF & $logTime & "Killed " & docunicode($tenboss) & " New save time at : " & $lastSaveTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
+		FileWriteLine($logfilename, @CRLF & $logTime & "Killed " & docunicode($tenboss) & " New save time at : " & $lastSaveTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
 		$lastSaveX = $varx
 		$lastSaveY = $vary
 		$killedBoss = False
