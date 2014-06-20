@@ -1,4 +1,5 @@
-﻿$str = "Bắt Đầu"
+﻿;global variables
+$str = "Bắt Đầu"
 $xpet1 = 100
 $lastSaveTime = -1
 $lastSaveX = 0
@@ -6,14 +7,6 @@ $lastSaveY = 0
 $xpet2 = 900
 $ypet = 29
 $timebatdau = ""
-$skillkey = ""
-$powerupkey = ""
-$firsthpbuff = ""
-$secondhpbuff = ""
-$teleportkey = ""
-$flashkey = ""
-$playshortkey = ""
-$stopshortkey = ""
 $timer1 = 400
 $timer2 = 400
 $conect = 0
@@ -23,20 +16,33 @@ $mapcuoi = ""
 $killedBoss = False
 $logTime = ""
 $bossne = ""
-$charType23 = "char[23]"
 $dead = false
 $killedBoss = False
+$currentServer = 0
+$windowTitle = ""
+
+;semi-const variables
 $logsfolder = "logs/"
 $configfolder = "conf/"
-$currentServer = 0
+$charType23 = "char[23]"
 
+;key variables
+$skillkey = ""
+$powerupkey = ""
+$firsthpbuff = ""
+$secondhpbuff = ""
+$teleportkey = ""
+$flashkey = ""
+$playshortkey = ""
+$stopshortkey = ""
+
+;setting variables
 $hpSetting = 0
 $teleSetting = 0
 $stuckSetting = 0
 $delItemSetting = 0
 $furySetting = 0
 $ignoreSetting = 0
-$windowTitle = ""
-$changeSvSetting
+$changeSvSetting = 0
 
 Global $handle = 0
