@@ -10,6 +10,7 @@ Func loadSetting()
 	$windowTitle = GUICtrlRead($combo)
 	$pid = WinGetProcess($windowTitle)
 	$handle = _memoryopen($pid)
+	$logsfolder = $logsfolder & $windowTitle & "/"
 	$hpSetting = 0
 	$teleSetting = 0
 	$stuckSetting = 0
@@ -26,6 +27,8 @@ Func loadSetting()
 	$teleportkey = getkeycode(GUICtrlRead($cbmap))
 	$flashkey = getkeycode(GUICtrlRead($cbditruc))
 	$maplist = StringSplit(GUICtrlRead($map2), "-")
+	$playshortkey = GUICtrlRead($keyplay)
+	$stopshortkey = GUICtrlRead($keystop)
 	If UBound($maplist) > 2 Then
 		For $i = 1 To $maplist[0]
 			For $j = 1 To 890
