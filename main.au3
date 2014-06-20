@@ -11,6 +11,8 @@
 ; Script Start - Add your code below here
 #include "framework.au3"
 #include "user_interface.au3"
+#include <Constants.au3>
+#include "vkeycode.au3"
 #include "map_array.au3"
 #include "variables.au3"
 #include "utilities.au3"

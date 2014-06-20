@@ -29,6 +29,7 @@ Func loadSetting()
 	$maplist = StringSplit(GUICtrlRead($map2), "-")
 	$playshortkey = GUICtrlRead($keyplay)
 	$stopshortkey = GUICtrlRead($keystop)
+	$listmap = ""
 	If UBound($maplist) > 2 Then
 		For $i = 1 To $maplist[0]
 			For $j = 1 To 890

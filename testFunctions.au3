@@ -1,5 +1,7 @@
 ﻿#include "framework.au3"
 #include "user_interface.au3"
+#include <Constants.au3>
+#include "vkeycode.au3"
 #include "map_array.au3"
 #include "variables.au3"
 #include "utilities.au3"
@@ -91,9 +93,7 @@ Func play()
 	loadSetting()
 	If $str = "Bắt Đầu" Then
 		$str = "Dừng"
-		$auto = "0x005f4498"
-		Sleep(2000)
-		writeMemory($autokey, $handle, 1)
+		relogin()
 		GUICtrlSetData($okbutton, $str)
 	Else
 		Sleep(500)
