@@ -1,4 +1,4 @@
-﻿Dim $controlsId[19]
+﻿Dim $controlsId[21]
 #Region ### START Koda GUI section ### Form=
 	$form1 = GUICreate("Auto Boss Three kingdom online", 544, 700, 401, 0)
 	$tab1 = GUICtrlCreateTab(0, 0, 544, 700)
@@ -61,9 +61,9 @@
 	$controlsId[5] = $txtvatpham
 	$label11 = GUICtrlCreateLabel("Phút ", 293, 166, 35, 17)
 	$ckrelogin = GUICtrlCreateCheckbox("Tự động đăng nhập khi hết map  ", 350, 130, 175, 17)
-	$controlsId[4] = $ckvatpham
+	$controlsId[19] = $ckrelogin
 	$ckpettank = GUICtrlCreateCheckbox("Cho lính tấn công boss trước  ", 350, 150, 175, 17)
-	$controlsId[4] = $ckvatpham
+	$controlsId[20] = $ckpettank
 	$ckmap = GUICtrlCreateCheckbox("Map thay đổi sử dụng phím", 16, 300, 145, 17)
 	$controlsId[6] = $ckmap
 	$cbmap = GUICtrlCreateCombo("", 240, 308, 41, 25)

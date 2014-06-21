@@ -21,6 +21,7 @@
 	$maplist = StringSplit(GUICtrlRead($map2), "-")
 	$playshortkey = GUICtrlRead($keyplay)
 	$stopshortkey = GUICtrlRead($keystop)
+	$changeSvSetting = GUICtrlRead($ckrelogin)
 	$listmap = ""
 	$logfilename = $logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt"
 	$logfilehandle = FileOpen($logfilename, 1 + 8 + 128)
@@ -80,7 +81,7 @@ Func loadUserConfig()
 	If $configfilehandle = -1 Then
 		GUICtrlSetData($log, "No config file found" & @CRLF & GUICtrlRead($log))
 	Else
-		$numOfLine = 18
+		$numOfLine = 20
 		For $i = 1 To $numOfLine
 			$line = FileReadLine($configfilehandle, $i)
 			If ($line = "") Then
@@ -89,7 +90,7 @@ Func loadUserConfig()
 			$config = StringSplit($line, "=")
 			If (UBound($config) >= 2) Then
 				$key = Int($config[1])
-				If ($key = 4) Or ($key = 6) Or ($key = 7) Or ($key = 17) Then
+				If ($key = 4) Or ($key = 6) Or ($key = 7) Or ($key = 17) Or ($key = 19) Or ($key = 20) Then
 					GUICtrlSetState($controlsId[$key], $config[2])
 				Else
 					GUICtrlSetData($controlsId[$key], $config[2])
@@ -103,7 +104,7 @@ EndFunc   ;==>loadUserConfig
 Func saveUserConfig()
 	$filename = $configfolder & $windowTitle & ".conf"
 	$line = ""
-	For $i = 1 To 18
+	For $i = 1 To 20
 		$line = $line & $i & "=" & GUICtrlRead($controlsId[$i]) & @CRLF
 	Next
 	FileDelete($filename)
@@ -202,13 +203,16 @@ Func stop()
 	EndIf
 EndFunc   ;==>stop
 
-Func checkStuck($varx, $vary)
+Func checkStuck()
+	$varx = getX()
+	$vary = getY()
 	$currentTime = @HOUR * 3600 + @MIN * 60 + @SEC
 	$addnamemap = readMemoryNoType($mapnamekey, $handle)
+	checkMap($addnamemap)
 	If ($currentTime - $lastSaveTime > 2 * 60) Or ($currentTime - $lastSaveTime < 0) Then
 		$logTime = "[" & @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & "]   "
 		FileWriteLine($logfilename, @CRLF & $logTime & "New save time at : " & $currentTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
-		If (Abs($lastSaveX - $varx) < 3) And ($currentTime - $lastSaveTime > 120) And (GUICtrlRead($ckStuck) = 1) And $lastSaveTime <> -1 Then
+		If (Abs($lastSaveX - $varx) < 3) And ($currentTime - $lastSaveTime > 4*60) And (GUICtrlRead($ckStuck) = 1) And $lastSaveTime <> -1 Then
 			stopMoving($windowTitle, 100)
 			FileWriteLine($logfilename, @CRLF & $logTime & "**** Stuck at [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] map : " & $addnamemap & "(" & $varx & "," & $vary & ")" & " teleporting ****** " & $lastSaveTime & " vs " & $currentTime)
 			GUICtrlSetData($log, $logTime & "**** Stuck at [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")" & " teleporting ******" & @CRLF & GUICtrlRead($log))
@@ -243,6 +247,7 @@ Func chayy($handle, $vary)
 			GUICtrlSetData($log, "**** Mất kết nối lúc [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] ******" & @CRLF & GUICtrlRead($log))
 			stop()
 		EndIf
+		checkStuck()
 		$msg = GUIGetMsg()
 		If $msg = $okbutton Then
 			If $str = "Dừng" Then
@@ -263,9 +268,9 @@ Func chayy($handle, $vary)
 		Sleep(500)
 		$varx = getX()
 		$vary = getY()
-		If $lasty = $vary Then
-			$mouseX = getMouseX($lastMouseX)
-		EndIf
+		;If $lasty = $vary Then
+		;	$mouseX = getMouseX($lastMouseX)
+		;EndIf
 		If $vary < 24 Then
 			$lparam = calLParam($mouseX, 374)
 		EndIf
@@ -282,6 +287,19 @@ Func chayy($handle, $vary)
 	_WinAPI_PostMessage(WinGetHandle($windowTitle), 514, 0, $lparam2)
 	Sleep(100)
 EndFunc   ;==>chayy
+
+Func checkMap ($addnamemap)
+	If GUICtrlRead($ckmap) == 1 And StringInStr("-" & $listmap & "-", "-" & $addnamemap & "-") = 0 Then
+		$lparam2 = (325 * 65536) + (526)
+		_WinAPI_PostMessage(WinGetHandle($windowTitle), 514, 0, $lparam2)
+		Sleep(100)
+		_WinAPI_PostMessage(WinGetHandle($windowTitle), 256, $teleportkey, 1)
+		Sleep(100)
+		_WinAPI_PostMessage(WinGetHandle($windowTitle), 257, $teleportkey, 1)
+		Sleep(600)
+		GUICtrlSetData($log, "**** Using teleport at " & $map[$addnamemap] & "[" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] ******" & @CRLF & GUICtrlRead($log))
+	EndIf
+EndFunc
 
 Func chayx($handle, $varx)
 	GUICtrlSetData($currentBoss, "Đang chạy")
@@ -300,17 +318,24 @@ Func chayx($handle, $varx)
 		GUICtrlSetData($direction, $huongchay)
 		$ketnoi = readMemory($connectionkey, $handle, $charType23)
 		If $ketnoi == "Mâìt kêìt nôìi" Then
-			GUICtrlSetData($log, @CRLF & "**** Mất kết nối lúc [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] ******" & @CRLF & GUICtrlRead($log))
+			GUICtrlSetData($log, "**** Mất kết nối lúc [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] ******" & @CRLF & GUICtrlRead($log))
 			stop()
 		EndIf
+		$varx = getX()
+		$vary = getY()
 		$hp = getCurrentHp()
 		GUICtrlSetData($lbhp, $hp)
 		$addnamemap = readMemoryNoType($mapnamekey, $handle)
-		$varx = getX()
-		$vary = getY()
-		checkStuck($varx, $vary)
+		If ($addnamemap = $mapdau) And ($visitedfirstmap = False)  Then
+			$visitedfirstmap = True
+		EndIf
+
+		If ($addnamemap = $mapcuoi) And ($finishallmap = False) And $visitedfirstmap Then
+			$finishallmap = True
+		EndIf
+		checkStuck()
 		GUICtrlSetData($lbtoado, $varx & "," & $vary)
-		ToolTip($addnamemap & "-" & $mapdau & ":" & $mapcuoi, 0, 0)
+		;ToolTip($addnamemap & "-" & $mapdau & ":" & $mapcuoi, 0, 0)
 		If $hp == 0 Then
 			revive($handle, $hp, False)
 		EndIf
@@ -323,6 +348,8 @@ Func chayx($handle, $varx)
 			Sleep(100)
 		EndIf
 		_WinAPI_PostMessage(WinGetHandle($windowTitle), 513, 1, $lparamx)
+		$varx = getX()
+		$vary = getY()
 		If $varx <= $xpet1 And $huongchay = "Lui" And $addnamemap = $mapdau Then
 			$lparamx = (325 * 65536) + (926)
 			$huongchay = "Tien"
@@ -331,21 +358,36 @@ Func chayx($handle, $varx)
 			EndIf
 		EndIf
 		If $varx >= $xpet2 And $huongchay = "Tien" And $addnamemap = $mapcuoi Then
+			If $visitedfirstmap And $finishallmap And ($changeSvSetting = 1) Then
+				$switchtoserver = 2
+				If $currentServer = 2 Then
+					$switchtoserver = 1
+				EndIf
+				$logTime = "[" & @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & "]   "
+				FileWriteLine($logfilename, @CRLF & $logTime & " Finished run all map - changing to server " & $switchtoserver)
+				GUICtrlSetData($log, $logTime & " Finished run all map - changing to server " & $switchtoserver & @CRLF & GUICtrlRead($log))
+				relogin($windowTitle)
+				$visitedfirstmap = False
+				$finishallmap = False
+				Sleep(500)
+			EndIf
 			$lparamx = (325 * 65536) + (126)
 			$huongchay = "Lui"
+			$vary = getY()
+			$varx = getX()
 			If $vary > 26 Or $vary < 24 Then
 				chayy($handle, $vary)
 			EndIf
 		EndIf
 		If $addnamemap == 292 Or $addnamemap == 294 Then
-			If $varx > 1495 Or $varx < 6 Then
+			If $varx > 1496 Or $varx < 4 Then
 				If $vary > 28 Or $vary < 22 Then
 					chayy($handle, $vary)
 				EndIf
 				$lparamx = (284 * 65536) + (523)
 			EndIf
 		Else
-			If $varx > 995 Or $varx < 6 Then
+			If $varx > 996 Or $varx < 4 Then
 				If $vary > 28 Or $vary < 24 Then
 					chayy($handle, $vary)
 				EndIf
@@ -353,19 +395,13 @@ Func chayx($handle, $varx)
 			EndIf
 		EndIf
 		GUICtrlSetData($debug2, "-" & $listmap & "-" & " " & "-" & $addnamemap & "-")
+		GUICtrlSetData($debug, "Server : " & $currentServer & " firstmap : " & $visitedfirstmap & " allmap : " & $finishallmap)
 		$numberboss = readMemoryNoType($bosscountkey, $handle)
 		GUICtrlSetData($lbsoboss, $numberboss)
 		If $map[$addnamemap] <> GUICtrlRead($lbmap) Then
 			GUICtrlSetData($lbmap, $map[$addnamemap])
 			If GUICtrlRead($ckmap) == 1 And StringInStr("-" & $listmap & "-", "-" & $addnamemap & "-") = 0 Then
-				$lparam2 = (325 * 65536) + (526)
-				_WinAPI_PostMessage(WinGetHandle($windowTitle), 514, 0, $lparam2)
-				Sleep(100)
-				_WinAPI_PostMessage(WinGetHandle($windowTitle), 256, $teleportkey, 1)
-				Sleep(100)
-				_WinAPI_PostMessage(WinGetHandle($windowTitle), 257, $teleportkey, 1)
-				Sleep(600)
-				GUICtrlSetData($log, @CRLF & "**** Using teleport at " & $map[$addnamemap] & "[" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] ******" & @CRLF & GUICtrlRead($log))
+				checkMap($addnamemap)
 				If $varx <= $xpet1 Then
 					$lparamx = (325 * 65536) + (926)
 					$huongchay = "Tien"

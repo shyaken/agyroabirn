@@ -1,6 +1,5 @@
 ﻿#include "framework.au3"
 #include "user_interface.au3"
-#include <Constants.au3>
 #include "vkeycode.au3"
 #include "map_array.au3"
 #include "variables.au3"
@@ -91,16 +90,7 @@ EndFunc
 
 Func play()
 	loadSetting()
-	If $str = "Bắt Đầu" Then
-		$str = "Dừng"
-		relogin()
-		GUICtrlSetData($okbutton, $str)
-	Else
-		Sleep(500)
-		writeMemory($autokey, $handle, 0)
-		$str = "Bắt Đầu"
-		GUICtrlSetData($okbutton, $str)
-	EndIf
+	relogin($windowTitle)
 EndFunc
 
 

@@ -46,7 +46,7 @@ Func stopMoving ($window, $waittime)
 EndFunc
 
 Func relogin ($window)
-	If $currentServer == 0 Then 
+	If $currentServer == 0 Then
 		$currentServer = 1
 	Endif
 
@@ -54,31 +54,42 @@ Func relogin ($window)
 	actionMouseRelease ($window, $locationMiddle, 300)
 
 	actionMouseClick ($window, $locationMiddle, 300)
-
+	Sleep(500)
 	;Log out action :
 	pressButton ($window, $escapekey, 500)
-	$location = calLParam (126,175)
+	$location = calLParam (276,165)
 	actionMouseClick ($window, $location, 100)
 
 	$arrowKey = $uparrowkey
 	If $currentServer == 1 Then
 		$arrowKey = $downarrowkey
+		$currentServer = 2
+	Else
+		$currentServer = 1
 	EndIf
+
+	Sleep(4000)
 
 	pressButton ($window, $arrowKey, 500)
 
 	pressButton ($window, $enterkey, 4000)
 
-	pressButton ($window, $enterkey, 500)
+	$location = calLParam (526,410)
+
+	actionMouseRelease ($window, $location, 300)
+
+	actionMouseClick ($window, $location, 300)
 
 	pressButton ($window, $enterkey, 500)
 
 	pressButton ($window, $enterkey, 500)
 
-	$locationStartGame = calLParam (926, 450)
+	pressButton ($window, $enterkey, 500)
+
+	$locationStartGame = calLParam (926, 380)
 
 	actionMouseClick ($window, $locationStartGame, 300)
 
-	Sleep(4000)
+	Sleep(1000)
 
 EndFunc
