@@ -384,14 +384,12 @@ Func chayx($handle, $varx)
 				If $vary > 28 Or $vary < 22 Then
 					chayy($handle, $vary)
 				EndIf
-				$lparamx = (284 * 65536) + (523)
 			EndIf
 		Else
 			If $varx > 996 Or $varx < 4 Then
 				If $vary > 28 Or $vary < 24 Then
 					chayy($handle, $vary)
 				EndIf
-				$lparamx = (284 * 65536) + (523)
 			EndIf
 		EndIf
 		GUICtrlSetData($debug2, "-" & $listmap & "-" & " " & "-" & $addnamemap & "-")
@@ -416,9 +414,9 @@ Func chayx($handle, $varx)
 			If _DateDiff("n", $timebatdau, @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC) >= GUICtrlRead($txtvatpham) Then
 				$lparam2 = (354 * 65536) + (526)
 				$timebatdau = @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC
-				Sleep(2000)
-				writeMemory($autokey, $handle, 1)
 				Sleep(500)
+				writeMemory($autokey, $handle, 1)
+				Sleep(800)
 				writeMemory($autokey, $handle, 0)
 				$vary = getY()
 				If $vary > 26 Or $vary < 24 Then
@@ -593,9 +591,9 @@ Func tankboss($numberboss, $handle, $tgcho, $lparamx)
 			Sleep(100)
 			If $hp == 0 Then
 				revive($handle, $hp, True)
+				$killedBoss = False
 				If $dead Then
 					$dead = False
-					$killedBoss = False
 					ExitLoop
 				EndIf
 			EndIf
@@ -612,7 +610,7 @@ Func tankboss($numberboss, $handle, $tgcho, $lparamx)
 		$vary = getY()
 		$addnamemap = readMemoryNoType($mapnamekey, $handle)
 		GUICtrlSetData($lbsobossha, GUICtrlRead($lbsobossha) + 1)
-		GUICtrlSetData($log, GUICtrlRead($lbsobossha) & " - " & docunicode($tenboss) & " [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] - " & $map[$addnamemap] & @CRLF & GUICtrlRead($log))
+		GUICtrlSetData($log, GUICtrlRead($lbsobossha) & " - " & docunicode($tenboss) & " [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "] - " & $map[$addnamemap] & " - " & $currentServer & @CRLF & GUICtrlRead($log))
 		$lastSaveTime = @HOUR * 3600 + @MIN * 60 + @SEC
 		$logTime = "[" & @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & "]   "
 		FileWriteLine($logfilename, @CRLF & $logTime & "Killed " & docunicode($tenboss) & " New save time at : " & $lastSaveTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
@@ -627,7 +625,11 @@ Func revive($handle, $hp, $isboss)
 	$startRevie = @HOUR * 3600 + @MIN * 60 + @SEC
 	$tenboss = readMemory($bossnamekey, $handle, $charType23)
 	If $tenboss <> "" And $isboss Then
+		$varx = getX()
+		$vary = getY()
+
 		GUICtrlSetData($log, "Killed by " & docunicode($tenboss) & " [" & @MDAY & "/" & @MON & "/" & @YEAR & " " & @HOUR & ":" & @MIN & "]" & @CRLF & GUICtrlRead($log))
+		FileWriteLine($logfilename, @CRLF & $logTime & "Killed by " & docunicode($tenboss) & " at " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
 	EndIf
 	While $hp = 0
 		$now = @HOUR * 3600 + @MIN * 60 + @SEC
