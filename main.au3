@@ -6,7 +6,7 @@
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Res_Comment=An application to auto find and kill boss for Three Heros Online Game
 #AutoIt3Wrapper_Res_Description=An application to auto find and kill boss for Three Heros Online Game
-#AutoIt3Wrapper_Res_Fileversion=1.0.0.39
+#AutoIt3Wrapper_Res_Fileversion=1.0.0.41
 #AutoIt3Wrapper_Res_Fileversion_AutoIncrement=y
 #AutoIt3Wrapper_Res_LegalCopyright=Copyright by Shyaken at www.facebook.com/alleria.ken
 #AutoIt3Wrapper_Res_Field=Developed by|shyaken
