@@ -1,21 +1,21 @@
 ﻿Func getkeycode($phim)
 	Select
 		Case $phim = "F1"
-			$phim = "0x70"
+			$phim = $f1key
 		Case $phim = "F2"
-			$phim = "0x71"
+			$phim = $f2key
 		Case $phim = "F3"
-			$phim = "0x72"
+			$phim = $f3key
 		Case $phim = "F4"
-			$phim = "0x73"
+			$phim = $f4key
 		Case $phim = "F5"
-			$phim = "0x74"
+			$phim = $f5key
 		Case $phim = "F6"
-			$phim = "0x75"
+			$phim = $f6key
 		Case $phim = "F7"
-			$phim = "0x76"
+			$phim = $f7key
 		Case $phim = "F8"
-			$phim = "0x77"
+			$phim = $f8key
 	EndSelect
 	Return $phim
 EndFunc
