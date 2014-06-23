@@ -74,7 +74,7 @@ Func relogin ($window)
 
 	pressButton ($window, $enterkey, 4000)
 
-	$location = calLParam (526,410)
+	$location = calLParam (526,425)
 
 	actionMouseRelease ($window, $location, 300)
 
@@ -92,4 +92,15 @@ Func relogin ($window)
 
 	Sleep(1000)
 
+EndFunc
+
+Func petAttack($window, $waittime)
+	$bossNameDisplay = calLParam(513,95)
+	_WinAPI_PostMessage(WinGetHandle($window), 256, $altkey, 1)
+	actionMouseClick($window, $bossNameDisplay, 50)
+	actionMouseClick($window, $bossNameDisplay, 150)
+	actionMouseClick($window, $bossNameDisplay, 150)
+	Sleep(100)
+	_WinAPI_PostMessage(WinGetHandle($window), 257, $altkey, 1)
+	Sleep($waittime)
 EndFunc

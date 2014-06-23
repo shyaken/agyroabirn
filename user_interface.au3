@@ -71,10 +71,7 @@
 	GUICtrlSetData(-1, "F1|F2|F3|F4|F5|F6|F7|F8", "F8")
 	$ckStuck = GUICtrlCreateCheckbox("Khi mắc kẹt quá lâu sử dụng phím", 16, 320, 200, 17)
 	$controlsId[7] = $ckStuck
-	$debuglabel= GUICtrlCreateLabel("Debug :", 16, 350, 35, 17)
-	$debug = GUICtrlCreateLabel("...", 56, 350, 500, 17)
-	$debuglabel2= GUICtrlCreateLabel("Debug :", 16, 370, 35, 17)
-	$debug2 = GUICtrlCreateLabel("...", 56, 370, 500, 17)
+	$debug = GUICtrlCreateEdit("", 16, 350, 500, 150)
 	$label11 = GUICtrlCreateLabel("Máu nhỏ hơn ", 16, 198, 70, 17)
 	GUICtrlSetColor(-1, 16711680)
 	$txthp = GUICtrlCreateInput("3000", 88, 194, 79, 21)

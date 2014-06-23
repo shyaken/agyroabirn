@@ -22,6 +22,7 @@
 	$playshortkey = GUICtrlRead($keyplay)
 	$stopshortkey = GUICtrlRead($keystop)
 	$changeSvSetting = GUICtrlRead($ckrelogin)
+	$petAttackSetting = GUICtrlRead($ckpettank)
 	$listmap = ""
 	$logfilename = $logsfolder & "log" & @YEAR & @MON & @MDAY & ".txt"
 	$logfilehandle = FileOpen($logfilename, 1 + 8 + 128)
@@ -209,7 +210,7 @@ Func checkStuck()
 	$currentTime = @HOUR * 3600 + @MIN * 60 + @SEC
 	$addnamemap = readMemoryNoType($mapnamekey, $handle)
 	checkMap($addnamemap)
-	If ($currentTime - $lastSaveTime > 2 * 60) Or ($currentTime - $lastSaveTime < 0) Then
+	If ($currentTime - $lastSaveTime > 4 * 60) Or ($currentTime - $lastSaveTime < 0) Then
 		$logTime = "[" & @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & "]   "
 		FileWriteLine($logfilename, @CRLF & $logTime & "New save time at : " & $currentTime & " map : " & $map[$addnamemap] & "(" & $varx & "," & $vary & ")")
 		If (Abs($lastSaveX - $varx) < 3) And ($currentTime - $lastSaveTime > 4*60) And (GUICtrlRead($ckStuck) = 1) And $lastSaveTime <> -1 Then
@@ -392,8 +393,6 @@ Func chayx($handle, $varx)
 				EndIf
 			EndIf
 		EndIf
-		GUICtrlSetData($debug2, "-" & $listmap & "-" & " " & "-" & $addnamemap & "-")
-		GUICtrlSetData($debug, "Server : " & $currentServer & " firstmap : " & $visitedfirstmap & " allmap : " & $finishallmap)
 		$numberboss = readMemoryNoType($bosscountkey, $handle)
 		GUICtrlSetData($lbsoboss, $numberboss)
 		If $map[$addnamemap] <> GUICtrlRead($lbmap) Then
@@ -437,16 +436,12 @@ Func chayx($handle, $varx)
 					EndIf
 				Next
 				If $ktboss = True Then
-					$varx = getX()
-					$varx2 = $varx
-					While Abs($varx2 - $varx) < 100
-						flash($windowTitle, $lparamx, 1000)
-						$varx2 = getX()
-					WEnd
+					ignoreBosses()
 				EndIf
 			EndIf
 			If $ktboss = False Then
-				tankboss($numberboss, $handle, @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC, $lparamx)
+				flash($windowTitle, $lparamx, 1000)
+				tankboss($numberboss, $handle)
 				GUICtrlSetData($currentBoss, "Đang chạy")
 			EndIf
 			$vary = getY()
@@ -492,95 +487,46 @@ Func chayx($handle, $varx)
 	Sleep(100)
 EndFunc   ;==>chayx
 
-Func tankboss($numberboss, $handle, $tgcho, $lparamx)
-	flash($windowTitle, $lparamx, 1000)
-	$soboss = "0x005f5ce4"
-	$boss = _memoryread($soboss, $handle)
-	$attack = "0x005f5e99"
-	$addnokhi = "0x005f32c8"
-	$addhpnomal = "0x00614c84"
+Func tankboss($numberboss, $handle)
+	stopMoving($windowTitle, 100)
+	$bossNameDisplay = calLParam(513,95)
+	$boss = readMemoryNoType($bosscountkey, $handle)
 	$tank = False
-	$get = _memoryread($attack, $handle, "short")
+	$get = readMemory($attackbosskey, $handle, "short")
 	$tenboss = readMemory($bossnamekey, $handle, $charType23)
 	$bossNameUnicode = docunicode($tenboss)
 	GUICtrlSetData($currentBoss, "Gặp boss : " & $bossNameUnicode)
-	While $get = 0
-		actionMouseClick($windowTitle, $lparamx, 50)
-		Sleep(100)
-		$get = _memoryread($attack, $handle, "short")
-		$boss = _memoryread($soboss, $handle)
-		If $boss > $numberboss Then
-			$numberboss = $boss
-		EndIf
-		If $boss == 0 Then
-			ExitLoop
-		EndIf
+	If ($petAttackSetting = True) Then
+		Sleep(1000)
+		petAttack($windowTitle, 1000)
+		Sleep(1000)
+	EndIf
+	actionMouseClick($windowTitle, $bossNameDisplay, 50)
+	While $boss > 0
+		$boss = readMemoryNoType($bosscountkey, $handle)
+		$get = readMemory($attackbosskey, $handle, "short")
+		$nokhi = readMemoryNoType($furykey, $handle)
+		$nokhi = readMemory($nokhi + 957, $handle, "short")
 		$hp = getCurrentHp()
 		GUICtrlSetData($lbhp, $hp)
-		If $hp == 0 Then
-			GUICtrlSetData($lbhp, $hp)
-			revive($handle, $hp, False)
-			If $dead Then
-				$dead = False
-				ExitLoop
-			EndIf
-		EndIf
-		$ktboss = False
-		For $i = 1 To $bossne[0]
-			If $bossne[$i] == docunicode($tenboss) Then
-				$ktboss = True
-				GUICtrlSetData($currentBoss, "Bỏ qua boss : " & $bossNameUnicode)
-			EndIf
-		Next
-		If $ktboss = True Then
-			$varx = getX()
-			$varx2 = $varx
-			While Abs($varx2 - $varx) < 100
-				flash($windowTitle, $lparamx, 1000)
-				$varx2 = getX()
-			WEnd
-		EndIf
-	WEnd
-	While $boss = $numberboss
-		$boss = _memoryread($soboss, $handle)
-		$get = _memoryread($attack, $handle, "short")
-		$nokhi = _memoryread($addnokhi, $handle)
-		$nokhi = _memoryread($nokhi + 957, $handle, "short")
-		$hp = getCurrentHp()
-		GUICtrlSetData($lbhp, $hp)
-		If $boss > $numberboss Then
-			$numberboss = $boss
-		EndIf
 		$nokhi = Floor($nokhi / 100)
 		If $get == 1 Then
 			$tank = True
 			GUICtrlSetData($currentBoss, "Tấn công boss : " & $bossNameUnicode)
 		EndIf
-		$ktboss = False
-		For $i = 1 To $bossne[0]
-			If $bossne[$i] == docunicode($tenboss) Then
-				$ktboss = True
-			EndIf
-		Next
-		If $ktboss = True Then
-			$varx = getX()
-			$varx2 = $varx
-			While Abs($varx2 - $varx) < 100
-				flash($windowTitle, $lparamx, 1000)
-				$varx2 = getX()
-			WEnd
-		EndIf
 		If $tank = True Then
-			$lparam = (95 * 65536) + (513)
 			If $nokhi > GUICtrlRead($txtno) Then
 				pressButton($windowTitle, $powerupkey, 300)
-				_WinAPI_PostMessage(WinGetHandle($windowTitle), 512, 0, $lparam)
-				_WinAPI_PostMessage(WinGetHandle($windowTitle), 512, 0, $lparam)
-				pressButton($windowTitle, $skillkey, 300)
 			EndIf
-			actionMouseClick($windowTitle, $lparam, 100)
+			_WinAPI_PostMessage(WinGetHandle($windowTitle), 512, 0, $bossNameDisplay)
+			_WinAPI_PostMessage(WinGetHandle($windowTitle), 512, 0, $bossNameDisplay)
+			pressButton($windowTitle, $skillkey, 300)
+			actionMouseClick($windowTitle, $bossNameDisplay, 100)
 			Sleep(100)
 			$killedBoss = True
+		Else
+			pressButton($windowTitle, $skillkey, 300)
+			actionMouseClick($windowTitle, $bossNameDisplay, 50)
 		EndIf
 		If $hp <= GUICtrlRead($txthp) Then
 			$lparamx = (650 * 65536) + (95)
@@ -650,3 +596,21 @@ Func revive($handle, $hp, $isboss)
 	WEnd
 	GUICtrlSetData($lbhp, $hp)
 EndFunc   ;==>revive
+
+Func ignoreBosses()
+	$tenboss = readMemory($bossnamekey, $handle, $charType23)
+	For $i = 1 To $bossne[0]
+		If $bossne[$i] == docunicode($tenboss) Then
+			$ktboss = True
+			GUICtrlSetData($currentBoss, "Bỏ qua boss : " & $bossNameUnicode)
+		EndIf
+	Next
+	If $ktboss = True Then
+		$varx = getX()
+		$varx2 = $varx
+		While Abs($varx2 - $varx) < 100
+			flash($windowTitle, $lparamx, 1000)
+			$varx2 = getX()
+		WEnd
+	EndIf
+EndFunc

@@ -47,5 +47,6 @@ $delItemSetting = 0
 $furySetting = 0
 $ignoreSetting = 0
 $changeSvSetting = 0
+$petAttackSetting = 0
 
 Global $handle = 0
